@@ -18,6 +18,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.*
 import okhttp3.MediaType.Companion.toMediaType
@@ -163,8 +165,18 @@ class ExtractorViewModel(private val app: Context) : ViewModel() {
     }
 }
 
-@Composable fun MapsExtractorApp(vm: ExtractorViewModel = viewModel(factory = androidx.lifecycle.viewmodel.initializer { ExtractorViewModel(LocalContext.current.applicationContext) })) {
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun MapsExtractorApp() {
     val context = LocalContext.current
+    val vm: ExtractorViewModel = viewModel(
+        factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                return ExtractorViewModel(context.applicationContext) as T
+            }
+        }
+    )
     var showSettings by remember { mutableStateOf(false) }
     var exportType by remember { mutableStateOf<String?>(null) }
     val launcher = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument()) { uri ->
@@ -179,9 +191,9 @@ class ExtractorViewModel(private val app: Context) : ViewModel() {
                 Spacer(Modifier.height(10.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     Button(onClick = { vm.start() }, enabled = vm.state != RunState.RUNNING) { Text("بدء الاستخراج") }
-                    if (vm.state == RunState.RUNNING) OutlinedButton(onClick = vm.pause) { Text("إيقاف مؤقت") }
-                    if (vm.state == RunState.PAUSED) OutlinedButton(onClick = vm.resume) { Text("استكمال") }
-                    if (vm.state == RunState.RUNNING || vm.state == RunState.PAUSED) OutlinedButton(onClick = vm.stop) { Text("إيقاف") }
+                    if (vm.state == RunState.RUNNING) OutlinedButton(onClick = vm::pause) { Text("إيقاف مؤقت") }
+                    if (vm.state == RunState.PAUSED) OutlinedButton(onClick = vm::resume) { Text("استكمال") }
+                    if (vm.state == RunState.RUNNING || vm.state == RunState.PAUSED) OutlinedButton(onClick = vm::stop) { Text("إيقاف") }
                 }
                 Spacer(Modifier.height(10.dp)); Text(vm.status); Spacer(Modifier.height(6.dp))
                 val target = vm.limit.toIntOrNull()?.coerceAtLeast(1) ?: 60
