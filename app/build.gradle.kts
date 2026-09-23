@@ -4,8 +4,26 @@ plugins {
     id("org.jetbrains.kotlin.plugin.compose")
 }
 
-android { namespace = "com.bright.maps.extractor"; compileSdk = 35
-    defaultConfig { applicationId = "com.bright.maps.extractor"; minSdk = 26; targetSdk = 35; versionCode = 1; versionName = "0.1.0" }
+android {
+    namespace = "com.bright.maps.extractor"
+    compileSdk = 35
+
+    defaultConfig {
+        applicationId = "com.bright.maps.extractor"
+        minSdk = 26
+        targetSdk = 35
+        versionCode = 1
+        versionName = "0.1.0"
+    }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
+}
+
+kotlin {
+    jvmToolchain(17)
 }
 
 dependencies {
